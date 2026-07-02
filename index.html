@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ColorPicker - Image Color Picker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f5f7;
+            min-height: 100vh;
+            color: #1d1d1f;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background: rgba(255,255,255,0.72);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0 40px;
+        }
+
+        .nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: #1d1d1f;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #86868b;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #1d1d1f;
+            background: rgba(0,0,0,0.04);
+        }
+
+        .main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px;
+            flex: 1;
+            width: 100%;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #1d1d1f;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero p {
+            color: #86868b;
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .upload-card {
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 24px;
+            padding: 60px 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .upload-card.dragover {
+            border-color: #007aff;
+            background: rgba(0,122,255,0.04);
+            transform: scale(1.005);
+        }
+
+        .upload-card.dragover::before {
+            opacity: 1;
+        }
+
+        .upload-icon-wrap {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(0,122,255,0.1), rgba(0,122,255,0.05));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 2rem;
+        }
+
+        .upload-card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+        }
+
+        .upload-card .sub {
+            color: #86868b;
+            font-size: 0.95rem;
+            margin-bottom: 28px;
+        }
+
+        .upload-btns {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #007aff;
+            color: white;
+            box-shadow: 0 4px 14px rgba(0,122,255,0.25);
+        }
+
+        .btn-primary:hover {
+            background: #0051d5;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0,122,255,0.35);
+        }
+
+        .btn-secondary {
+            background: rgba(0,0,0,0.05);
+            color: #1d1d1f;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0,0,0,0.08);
+        }
+
+        .url-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .url-row input {
+            flex: 1;
+            padding: 12px 18px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .url-row input:focus {
+            border-color: #007aff;
+            box-shadow: 0 0 0 3px rgba(0,122,255,0.1);
+        }
+
+        .workspace {
+            display: none;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .workspace.active {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .image-panel {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .panel-card {
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-header h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+
+        .badge {
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-saved {
+            background: rgba(52,199,89,0.1);
+            color: #34c759;
+        }
+
+        .image-wrap {
+            position: relative;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            background: repeating-conic-gradient(#f0f0f2 0% 25%, #e8e8eb 0% 50%) 50% / 20px 20px;
+        }
+
+        #sourceImage {
+            max-width: 100%;
+            max-height: 60vh;
+            height: auto;
+            display: block;
+            border-radius: 12px;
+            cursor: crosshair;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        }
+
+        .coords-pill {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-family: 'SF Mono', monospace;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .hint-bar {
+            padding: 10px 20px;
+            background: rgba(0,122,255,0.04);
+            border-top: 1px solid rgba(0,0,0,0.06);
+            font-size: 0.75rem;
+            color: #86868b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .hint-bar strong {
+            color: #007aff;
+            font-weight: 600;
+        }
+
+        .sidebar {
+            width: 300px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .color-block {
+            padding: 14px 18px;
+        }
+
+        .swatch-large {
+            width: 100%;
+            height: 48px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(0,0,0,0.08);
+            transition: background-color 0.08s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .swatch-large::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .color-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+        }
+
+        .color-row:last-child {
+            border-bottom: none;
+        }
+
+        .color-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #86868b;
+            min-width: 42px;
+        }
+
+        .color-val {
+            flex: 1;
+            font-family: 'SF Mono', 'Courier New', monospace;
+            font-size: 0.78rem;
+            color: #1d1d1f;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+
+        .copy-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            border: 1px solid rgba(0,0,0,0.08);
+            background: rgba(255,255,255,0.6);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: #86868b;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+
+        .copy-icon:hover {
+            background: #007aff;
+            border-color: #007aff;
+            color: white;
+        }
+
+        .copy-icon.copied {
+            background: #34c759;
+            border-color: #34c759;
+            color: white;
+        }
+
+        .saved-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 14px 18px 18px;
+        }
+
+        .saved-item {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid rgba(0,0,0,0.06);
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .saved-item:hover {
+            transform: scale(1.1) translateY(-2px);
+            border-color: rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .saved-item .tip {
+            position: absolute;
+            bottom: calc(100% + 5px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1d1d1f;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 0.6rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s;
+            font-family: 'SF Mono', monospace;
+            z-index: 5;
+        }
+
+        .saved-item:hover .tip {
+            opacity: 1;
+        }
+
+        .empty-state {
+            color: #c7c7cc;
+            font-size: 0.8rem;
+            text-align: center;
+            width: 100%;
+            padding: 12px;
+        }
+
+        .clear-btn {
+            margin: 0 18px 14px;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,59,48,0.2);
+            background: rgba(255,59,48,0.04);
+            color: #ff3b30;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .clear-btn:hover {
+            background: rgba(255,59,48,0.1);
+        }
+
+        .magnifier {
+            position: fixed;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            pointer-events: none;
+            display: none;
+            z-index: 1000;
+            overflow: hidden;
+            box-shadow: 
+                0 0 0 3px rgba(255,255,255,0.9),
+                0 0 0 6px rgba(0,0,0,0.1),
+                0 20px 50px rgba(0,0,0,0.2);
+        }
+
+        .magnifier canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            display: block;
+        }
+
+        .mag-cross {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            border: 2px solid #ff3b30;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 1001;
+            border-radius: 2px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%) translateY(120px);
+            background: #1d1d1f;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            z-index: 2000;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast-icon {
+            width: 20px;
+            height: 20px;
+            background: #34c759;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.75rem;
+            color: #c7c7cc;
+            border-top: 1px solid rgba(0,0,0,0.04);
+            background: rgba(255,255,255,0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .footer a {
+            color: #86868b;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer a:hover {
+            color: #1d1d1f;
+        }
+
+        @media (max-width: 900px) {
+            .workspace.active {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main { padding: 20px; }
+            .navbar { padding: 0 20px; }
+            .hero h1 { font-size: 1.9rem; }
+            .upload-card { padding: 40px 20px; }
+        }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="/senanto/color-picker" class="logo">
+                <div class="logo-icon">🎨</div>
+                ColorPicker
+            </a>
+            <div class="nav-links">
+                <a href="/senanto/color-picker" class="nav-link active">New Image</a>
+                <a href="https://github.com/senanto/color-picker" target="_blank" class="nav-link">GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main">
+        <div class="hero" id="hero">
+            <h1>Extract Colors from Any Image</h1>
+            <p>Get HEX, RGB, HSV, and CMYK values instantly</p>
+        </div>
+
+        <div class="upload-card" id="uploadCard">
+            <div class="upload-icon-wrap">📁</div>
+            <h2>Upload an Image</h2>
+            <p class="sub">Drag & drop, select a file, or press Ctrl+V to paste</p>
+            <div class="upload-btns">
+                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                    📂 Choose File
+                </button>
+                <button class="btn btn-secondary" onclick="pasteFromClipboard()">
+                    📋 Paste from Clipboard
+                </button>
+            </div>
+            <div class="url-row">
+                <input type="text" id="urlInput" placeholder="Paste an image URL...">
+                <button class="btn btn-secondary" onclick="loadFromUrl()">Load</button>
+            </div>
+            <input type="file" id="fileInput" accept="image/*" style="display:none;">
+        </div>
+
+        <div class="workspace" id="workspace">
+            <div class="image-panel">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3>Image</h3>
+                    </div>
+                    <div class="image-wrap">
+                        <div class="coords-pill" id="coordsPill">X: 0 &nbsp; Y: 0</div>
+                        <img id="sourceImage" src="" alt="">
+                        <canvas id="hiddenCanvas" style="display:none;"></canvas>
+                    </div>
+                    <div class="hint-bar">
+                        <strong>Tip:</strong> Hover to preview, click to pick and save
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3>Color Palette</h3>
+                        <span class="badge badge-saved"><span id="savedCount">0</span></span>
+                    </div>
+                    <div class="saved-grid" id="savedGrid">
+                        <div class="empty-state">No colors saved yet</div>
+                    </div>
+                    <button class="clear-btn" id="clearBtn" style="display:none;" onclick="clearSaved()">Clear All</button>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3>Cursor Color</h3>
+                    </div>
+                    <div class="color-block">
+                        <div class="swatch-large" id="liveSwatch"></div>
+                        <div class="color-row">
+                            <span class="color-label">HEX</span>
+                            <span class="color-val" id="liveHex">#------</span>
+                            <button class="copy-icon" onclick="copyText('liveHex')" title="Copy">📋</button>
+                        </div>
+                        <div class="color-row">
+                            <span class="color-label">RGB</span>
+                            <span class="color-val" id="liveRgb">rgb(---, ---, ---)</span>
+                            <button class="copy-icon" onclick="copyText('liveRgb')" title="Copy">📋</button>
+                        </div>
+                        <div class="color-row">
+                            <span class="color-label">HSV</span>
+                            <span class="color-val" id="liveHsv">hsv(---, ---%, ---%)</span>
+                            <button class="copy-icon" onclick="copyText('liveHsv')" title="Copy">📋</button>
+                        </div>
+                        <div class="color-row">
+                            <span class="color-label">CMYK</span>
+                            <span class="color-val" id="liveCmyk">cmyk(---%, ---%, ---%, ---%)</span>
+                            <button class="copy-icon" onclick="copyText('liveCmyk')" title="Copy">📋</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3>Picked Color</h3>
+                    </div>
+                    <div class="color-block">
+                        <div class="swatch-large" id="pickedSwatch"></div>
+                        <div class="color-row">
+                            <span class="color-label">HEX</span>
+                            <span class="color-val" id="pickedHex">#------</span>
+                            <button class="copy-icon" onclick="copyText('pickedHex')" title="Copy">📋</button>
+                        </div>
+                        <div class="color-row">
+                            <span class="color-label">RGB</span>
+                            <span class="color-val" id="pickedRgb">rgb(---, ---, ---)</span>
+                            <button class="copy-icon" onclick="copyText('pickedRgb')" title="Copy">📋</button>
+                        </div>
+                        <div class="color-row">
+                            <span class="color-label">HSV</span>
+                            <span class="color-val" id="pickedHsv">hsv(---, ---%, ---%)</span>
+                            <button class="copy-icon" onclick="copyText('pickedHsv')" title="Copy">📋</button>
+                        </div>
+                        <div class="color-row">
+                            <span class="color-label">CMYK</span>
+                            <span class="color-val" id="pickedCmyk">cmyk(---%, ---%, ---%, ---%)</span>
+                            <button class="copy-icon" onclick="copyText('pickedCmyk')" title="Copy">📋</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        Tüm haklar saklıdır © <a href="https://github.com/senanto" target="_blank">@senanto</a> 2026
+    </footer>
+
+    <div class="magnifier" id="magnifier">
+        <canvas id="magCanvas"></canvas>
+        <div class="mag-cross"></div>
+    </div>
+
+    <div class="toast" id="toast">
+        <div class="toast-icon">✓</div>
+        <span id="toastText">Copied!</span>
+    </div>
+
+    <script>
+        const uploadCard = document.getElementById('uploadCard');
+        const workspace = document.getElementById('workspace');
+        const hero = document.getElementById('hero');
+        const sourceImage = document.getElementById('sourceImage');
+        const hiddenCanvas = document.getElementById('hiddenCanvas');
+        const ctx = hiddenCanvas.getContext('2d');
+        const magnifier = document.getElementById('magnifier');
+        const magCanvas = document.getElementById('magCanvas');
+        const magCtx = magCanvas.getContext('2d');
+        const coordsPill = document.getElementById('coordsPill');
+        const toast = document.getElementById('toast');
+        const toastText = document.getElementById('toastText');
+        const savedGrid = document.getElementById('savedGrid');
+        const savedCount = document.getElementById('savedCount');
+        const clearBtn = document.getElementById('clearBtn');
+
+        let savedColors = [];
+        let currentImage = null;
+
+        uploadCard.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadCard.classList.add('dragover');
+        });
+        uploadCard.addEventListener('dragleave', () => {
+            uploadCard.classList.remove('dragover');
+        });
+        uploadCard.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadCard.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                loadImage(file);
+            }
+        });
+
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            if (e.target.files[0]) loadImage(e.target.files[0]);
+        });
+
+        document.addEventListener('paste', async (e) => {
+            const items = e.clipboardData.items;
+            for (const item of items) {
+                if (item.type.startsWith('image/')) {
+                    const file = item.getAsFile();
+                    if (file) {
+                        loadImage(file);
+                        showToast('Image pasted!');
+                        return;
+                    }
+                }
+            }
+            const text = e.clipboardData.getData('text');
+            if (text && (text.startsWith('http') || text.startsWith('data:image'))) {
+                document.getElementById('urlInput').value = text;
+                loadFromUrl();
+                showToast('URL pasted!');
+            }
+        });
+
+        async function pasteFromClipboard() {
+            try {
+                const items = await navigator.clipboard.read();
+                for (const item of items) {
+                    for (const type of item.types) {
+                        if (type.startsWith('image/')) {
+                            const blob = await item.getType(type);
+                            loadImage(new File([blob], 'pasted.png', { type }));
+                            showToast('Image pasted!');
+                            return;
+                        }
+                    }
+                }
+                const text = await navigator.clipboard.readText();
+                if (text && (text.startsWith('http') || text.startsWith('data:image'))) {
+                    document.getElementById('urlInput').value = text;
+                    loadFromUrl();
+                } else {
+                    showToast('No image found in clipboard');
+                }
+            } catch (err) {
+                showToast('Paste not supported, use Ctrl+V');
+            }
+        }
+
+        function loadImage(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                sourceImage.src = e.target.result;
+                sourceImage.onload = () => {
+                    hiddenCanvas.width = sourceImage.naturalWidth;
+                    hiddenCanvas.height = sourceImage.naturalHeight;
+                    ctx.drawImage(sourceImage, 0, 0);
+                    currentImage = sourceImage;
+                    showWorkspace();
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function loadFromUrl() {
+            const url = document.getElementById('urlInput').value.trim();
+            if (!url) return;
+            sourceImage.crossOrigin = 'anonymous';
+            sourceImage.src = url;
+            sourceImage.onload = () => {
+                hiddenCanvas.width = sourceImage.naturalWidth;
+                hiddenCanvas.height = sourceImage.naturalHeight;
+                ctx.drawImage(sourceImage, 0, 0);
+                currentImage = sourceImage;
+                showWorkspace();
+            };
+            sourceImage.onerror = () => {
+                showToast('Failed to load image (CORS)');
+            };
+        }
+
+        function showWorkspace() {
+            uploadCard.style.display = 'none';
+            hero.style.display = 'none';
+            workspace.classList.add('active');
+        }
+
+        sourceImage.addEventListener('mousemove', (e) => {
+            if (!currentImage) return;
+            const rect = sourceImage.getBoundingClientRect();
+            const sx = sourceImage.naturalWidth / rect.width;
+            const sy = sourceImage.naturalHeight / rect.height;
+            const x = Math.min(Math.max(Math.floor((e.clientX - rect.left) * sx), 0), sourceImage.naturalWidth - 1);
+            const y = Math.min(Math.max(Math.floor((e.clientY - rect.top) * sy), 0), sourceImage.naturalHeight - 1);
+
+            coordsPill.innerHTML = `X: ${x} &nbsp; Y: ${y}`;
+
+            const pixel = ctx.getImageData(x, y, 1, 1).data;
+            updateDisplay(pixel[0], pixel[1], pixel[2], 'live');
+
+            magnifier.style.display = 'block';
+            const mx = e.clientX + 20;
+            const my = e.clientY - 70;
+            magnifier.style.left = mx + 'px';
+            magnifier.style.top = my + 'px';
+
+            magCanvas.width = 140;
+            magCanvas.height = 140;
+            magCtx.imageSmoothingEnabled = false;
+            magCtx.drawImage(
+                hiddenCanvas,
+                Math.max(0, x - 5), Math.max(0, y - 5), 10, 10,
+                0, 0, 140, 140
+            );
+            magCtx.strokeStyle = 'rgba(255,255,255,0.25)';
+            magCtx.lineWidth = 1;
+            for (let i = 1; i < 10; i++) {
+                const p = (i / 10) * 140;
+                magCtx.beginPath(); magCtx.moveTo(p, 0); magCtx.lineTo(p, 140); magCtx.stroke();
+                magCtx.beginPath(); magCtx.moveTo(0, p); magCtx.lineTo(140, p); magCtx.stroke();
+            }
+        });
+
+        sourceImage.addEventListener('mouseleave', () => {
+            magnifier.style.display = 'none';
+        });
+
+        sourceImage.addEventListener('click', (e) => {
+            if (!currentImage) return;
+            const rect = sourceImage.getBoundingClientRect();
+            const sx = sourceImage.naturalWidth / rect.width;
+            const sy = sourceImage.naturalHeight / rect.height;
+            const x = Math.min(Math.max(Math.floor((e.clientX - rect.left) * sx), 0), sourceImage.naturalWidth - 1);
+            const y = Math.min(Math.max(Math.floor((e.clientY - rect.top) * sy), 0), sourceImage.naturalHeight - 1);
+
+            const pixel = ctx.getImageData(x, y, 1, 1).data;
+            updateDisplay(pixel[0], pixel[1], pixel[2], 'picked');
+            saveColor(pixel[0], pixel[1], pixel[2]);
+            showToast('Color saved!');
+        });
+
+        function rgbToHex(r, g, b) {
+            return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
+        }
+
+        function rgbToHsv(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, v = max;
+            const d = max - min;
+            s = max === 0 ? 0 : d / max;
+            if (max === min) h = 0;
+            else {
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+            return { h: Math.round(h * 360), s: Math.round(s * 100), v: Math.round(v * 100) };
+        }
+
+        function rgbToCmyk(r, g, b) {
+            let c = 1 - r / 255, m = 1 - g / 255, y = 1 - b / 255;
+            let k = Math.min(c, m, y);
+            if (k === 1) return { c: 0, m: 0, y: 0, k: 100 };
+            c = (c - k) / (1 - k); m = (m - k) / (1 - k); y = (y - k) / (1 - k);
+            return { c: Math.round(c * 100), m: Math.round(m * 100), y: Math.round(y * 100), k: Math.round(k * 100) };
+        }
+
+        function updateDisplay(r, g, b, prefix) {
+            const hex = rgbToHex(r, g, b);
+            const hsv = rgbToHsv(r, g, b);
+            const cmyk = rgbToCmyk(r, g, b);
+
+            document.getElementById(prefix + 'Swatch').style.backgroundColor = hex;
+            document.getElementById(prefix + 'Hex').textContent = hex;
+            document.getElementById(prefix + 'Rgb').textContent = `rgb(${r}, ${g}, ${b})`;
+            document.getElementById(prefix + 'Hsv').textContent = `hsv(${hsv.h}°, ${hsv.s}%, ${hsv.v}%)`;
+            document.getElementById(prefix + 'Cmyk').textContent = `cmyk(${cmyk.c}%, ${cmyk.m}%, ${cmyk.y}%, ${cmyk.k}%)`;
+        }
+
+        function saveColor(r, g, b) {
+            const hex = rgbToHex(r, g, b);
+            savedColors.push({ r, g, b, hex });
+            renderSaved();
+        }
+
+        function renderSaved() {
+            savedCount.textContent = savedColors.length;
+            if (savedColors.length === 0) {
+                savedGrid.innerHTML = '<div class="empty-state">No colors saved yet</div>';
+                clearBtn.style.display = 'none';
+                return;
+            }
+            clearBtn.style.display = 'block';
+            savedGrid.innerHTML = '';
+            savedColors.forEach((c, i) => {
+                const el = document.createElement('div');
+                el.className = 'saved-item';
+                el.style.backgroundColor = c.hex;
+                el.innerHTML = `<span class="tip">${c.hex}</span>`;
+                el.onclick = () => {
+                    updateDisplay(c.r, c.g, c.b, 'picked');
+                    showToast('Color loaded: ' + c.hex);
+                };
+                savedGrid.appendChild(el);
+            });
+        }
+
+        function clearSaved() {
+            savedColors = [];
+            renderSaved();
+            showToast('All colors cleared');
+        }
+
+        function copyText(id) {
+            const text = document.getElementById(id).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copied: ' + text);
+                const btn = event.target;
+                btn.classList.add('copied');
+                btn.textContent = '✓';
+                setTimeout(() => { btn.classList.remove('copied'); btn.textContent = '📋'; }, 1200);
+            });
+        }
+
+        function showToast(msg) {
+            toastText.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(toast._t);
+            toast._t = setTimeout(() => toast.classList.remove('show'), 2200);
+        }
+    </script>
+</body>
+</html>
